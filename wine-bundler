@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 APP_SCRIPT=`basename "$0"`
-APP_VERSION="1.2"
+APP_VERSION="1.3"
 APP_CACHE="$HOME/.cache/wine-bundler"
 
 ARG_NAME="My Wine App"
@@ -234,8 +234,20 @@ if [ -f "\$LAUNCHER" ]; then
   APP="\$(osascript "\$LAUNCHER")"
 fi
 
+# doesn't work for some applications
+#if [ -n "\$APP" ]; then
+#  "\$WINE" start "\$APP"
+#fi
+
 if [ -n "\$APP" ]; then
-  "\$WINE" start "\$APP"
+  if [ "\${APP/\\\\}" = "\$APP" ]; then
+    "\$WINE" "\$APP"
+  else
+    WINEPATH="\$RESOURCES/${NAME_WINE_HOME}/usr/bin/winepath"
+    APP="\$("\$WINEPATH" "\$APP")"
+    cd "\$(dirname "\$APP")"
+    "\$WINE" "\$(basename "\$APP")"
+  fi
 fi
 EOF
   chmod +x "$script"
