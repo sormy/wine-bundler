@@ -55,7 +55,7 @@ Example
 
 Assuming that you already had created wine prefix, installed game, tuned with winetricks etc.
 
-Divine Divinity example with launch menu:
+Divine Divinity example with menu:
 
 ```shell
 wine-bundler \
@@ -65,7 +65,8 @@ wine-bundler \
   -w stable \
   -a win32 \
   -p ~/.wine \
-  -m 'Divine Divinity=c:\GOG Games\Divine Divinity (Russian)\div.exe|Settings=c:\GOG Games\Divine Divinity (Russian)\configtool.exe'
+  -m 'Divine Divinity=c:\GOG Games\Divine Divinity (Russian)\div.exe' \
+  -m 'Settings=c:\GOG Games\Divine Divinity (Russian)\configtool.exe'
 ```
 
 Divine Divinity example without menu:
@@ -78,8 +79,28 @@ wine-bundler \
   -w stable \
   -a win32 \
   -p ~/.wine \
-  -a 'c:\GOG Games\Divine Divinity (Russian)\div.exe'
+  -s 'c:\GOG Games\Divine Divinity (Russian)\div.exe'
 ```
+
+Earth 2150 Trilogy example with menu:
+
+```shell
+wine-bundler \
+  -i ~/.wine/drive_c/GOG\ Games/Earth\ 2150/goggame-1207661853.ico \
+  -n "Earth 2150" \
+  -c ru_RU.UTF-8 \
+  -w stable \
+  -a win32 \
+  -p ~/.wine \
+  -m 'Earth 2150: Escape from the Blue Planet=c:\GOG Games\Earth 2150\Earth2150.exe' \
+  -m 'Earth 2150: Escape from the Blue Planet (Settings)=c:\GOG Games\Earth 2150\Setup.exe' \
+  -m 'Earth 2150: The Moon Project=c:\GOG Games\Earth 2150 - The Moon Project\TheMoonProject.exe' \
+  -m 'Earth 2150: The Moon Project (Settings)=c:\GOG Games\Earth 2150 - The Moon Project\Setup.exe' \
+  -m 'Earth 2150: Lost Souls=c:\GOG Games\Earth 2150 - Lost Souls\LostSouls.exe' \
+  -m 'Earth 2150: Lost Souls (Settings)=c:\GOG Games\Earth 2150 - Lost Souls\Setup.exe'
+```
+
+Bundle will be produced in current working directory.
 
 Dependencies
 ------------

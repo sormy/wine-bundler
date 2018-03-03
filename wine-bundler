@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 APP_SCRIPT=`basename "$0"`
-APP_VERSION="1.1"
+APP_VERSION="1.2"
 APP_CACHE="$HOME/.cache/wine-bundler"
 
 ARG_NAME="My Wine App"
@@ -34,7 +34,7 @@ Options:
   -h (help)     Prints this help message, then exits
   -v (version)  Prints the version of this script, then exits
   -l (list)     Prints all available portable wine versions
-  -a (app)      Set wine auto start application (defaults to "${ARG_APP}")
+  -s (app)      Set wine start application (defaults to "${ARG_APP}")
   -m (menu)     Set wine start menu
                 Format: "Game=c:\my game\game.exe|Config=c:\my game\config.exe"
                 First entry will be default
@@ -222,29 +222,20 @@ ROOT="\$(cd "\$(dirname "\$0")" && pwd)"
 
 RESOURCES="\$ROOT/../Resources"
 
-APP='${BUNDLE_APP}'
-
 export WINEPREFIX="\$RESOURCES/${NAME_WINE_PREFIX}"
 export WINEARCH="${BUNDLE_ARCH}"
 export LC_ALL="${BUNDLE_LOCALE}"
 
-WINE_HOME="\$RESOURCES/${NAME_WINE_HOME}"
-WINE="\$WINE_HOME/usr/bin/wine"
-WINEPATH="\$WINE_HOME/usr/bin/winepath"
+APP='${BUNDLE_APP}'
 LAUNCHER="\$RESOURCES/${NAME_LAUNCHER}"
+WINE="\$RESOURCES/${NAME_WINE_HOME}/usr/bin/wine"
 
 if [ -f "\$LAUNCHER" ]; then
   APP="\$(osascript "\$LAUNCHER")"
 fi
 
 if [ -n "\$APP" ]; then
-  if [ "\${APP/\\\\}" = "\$APP" ]; then
-    "\$WINE" "\$APP"
-  else
-    APP="\$("\$WINEPATH" "\$APP")"
-    cd "\$(dirname "\$APP")"
-    "\$WINE" "\$(basename "\$APP")"
-  fi
+  "\$WINE" start "\$APP"
 fi
 EOF
   chmod +x "$script"
@@ -252,10 +243,10 @@ EOF
 
 bundle_launcher () {
   local names=`echo "$BUNDLE_APP_MENU" | tr '|' '\n' \
-    | sed -e 's/=.*$//' -e 's/\(.*\)/"\1"/' -e 's!\\\\!\\\\\\\\!g' \
+    | sed -e '/^\s*$/d' -e 's/=.*$//' -e 's/\(.*\)/"\1"/' -e 's!\\\\!\\\\\\\\!g' \
     | paste -sd ',' -`
   local values=`echo "$BUNDLE_APP_MENU" | tr '|' '\n' \
-    | sed -e 's/^.*=//' -e 's/\(.*\)/"\1"/' -e 's!\\\\!\\\\\\\\!g' \
+    | sed -e '/^\s*$/d' -e 's/^.*=//' -e 's/\(.*\)/"\1"/' -e 's!\\\\!\\\\\\\\!g' \
     | paste -sd ',' -`
 
   cat <<EOF > "$BUNDLE_DIR/Contents/Resources/$NAME_LAUNCHER"
@@ -308,19 +299,20 @@ bundle_build () {
   echo "DONE!"
 }
 
-while getopts ":hvla:m:r:n:i:p:w:c:" opt; do
+while getopts ":hvls:m:r:n:i:p:w:c:a:" opt; do
   case $opt in
     h)  usage; exit 0 ;;
     v)  version; exit 0 ;;
     l)  wine_list; exit 0 ;;
-    a)  ARG_APP="$OPTARG" ;;
-    m)  ARG_APP_MENU="$OPTARG" ;;
+    s)  ARG_APP="$OPTARG" ;;
+    m)  ARG_APP_MENU="$ARG_APP_MENU|$OPTARG" ;;
     r)  ARG_APP_PROMPT="$OPTARG" ;;
     n)  ARG_NAME="$OPTARG" ;;
     i)  ARG_ICON="$OPTARG" ;;
     p)  ARG_PREFIX="$OPTARG" ;;
     w)  ARG_WINE="$OPTARG" ;;
     c)  ARG_LOCALE="$OPTARG" ;;
+    a)  ARG_ARCH="$OPTARG" ;;
     \?) error "Option -$OPTARG requires an argument." ;;
   esac
 done
