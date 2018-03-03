@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 APP_SCRIPT=`basename "$0"`
-APP_VERSION="1.0"
+APP_VERSION="1.1"
 APP_CACHE="$HOME/.cache/wine-bundler"
 
 ARG_NAME="My Wine App"
@@ -147,7 +147,7 @@ ico2any () {
 any2icns () {
   local source="$1"
   local target="$2"
-  if [ ${source: -4} == ".icns" ]; then
+  if [ ${source: -5} == ".icns" ]; then
     cp -f "$source" "$target"
   elif [ ${source: -4} == ".png" ]; then
     png2icns "$source" "$target"
