@@ -38,7 +38,7 @@ brew install imagemagick
 
 Install `wine-bundler`:
 
-```
+```shell
 wget https://raw.githubusercontent.com/sormy/wine-bundler/master/wine-bundler \
   -O /usr/local/bin/wine-bundler
 chmod +x /usr/local/bin/wine-bundler

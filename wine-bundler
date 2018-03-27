@@ -47,6 +47,11 @@ Options:
                 (defaults to ${ARG_PREFIX})
   -w (wine)     Use specific wine version (regular expression)
                 (defaults to latest stable win64 or win32)
+                Latest win32: -osx$
+                Latest win64: -osx64$
+                Latest stable win32: ^stable-.*-osx$
+                Latest stable win64: ^stable-.*-osx64$
+                Specific version: '^stable-3\.0-osx$'
   -c (locale)   Set specific locale for wine (LC_ALL)
                 (defaults to ${ARG_LOCALE})
   -a (arch)     Set specific architecture for wine (win32 or win64)
