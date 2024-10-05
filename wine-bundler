@@ -80,36 +80,37 @@ error () {
 }
 
 wine_list () {
-  local url="https://dl.winehq.org/wine-builds/macosx/pool/"
+  local url="https://api.github.com/repos/Gcenx/macOS_Wine_builds/releases"
   curl -s "$url" \
-    | xmllint --html --xpath '//a/@href' - 2>/dev/null \
-    | tr ' ' '\n' \
-    | sed -e 's/^.*"\(.*\)".*$/\1/' \
-    | uniq \
-    | grep '^portable-winehq-.*\.tar\.gz$' \
-    | sed -e 's/^portable-winehq-\(.*\)\.tar\.gz$/\1/' \
+    | jq -r '.[].assets[].name' \
+    | grep '^wine-.*\.tar\.xz$' \
+    | sed -e 's/^wine-\(.*\)\.tar\.xz$/\1/' \
     || error "Unable to download list of wine versions"
 }
 
 wine_fetch () {
   local version="$1"
-  local url="https://dl.winehq.org/wine-builds/macosx/pool/portable-winehq-${version}.tar.gz"
+  local url="https://api.github.com/repos/Gcenx/macOS_Wine_builds/releases"
+  local dl_url=$(curl -s "$url" |
+    jq -r '.[].assets[] | select(.name == "wine-'"$version"'.tar.xz") | .browser_download_url')
   if [ ! -e "$APP_CACHE" ]; then
     mkdir -p "$APP_CACHE" || error "Unable to create cache directory"
   fi
   echo "Downloading wine..."
-  cd "$APP_CACHE" && curl --progress-bar -L -O -C - "$url" && cd - > /dev/null \
+  cd "$APP_CACHE" && curl --progress-bar -L -O -C - "$dl_url" && cd - > /dev/null \
     || error "Unable to download wine"
 }
 
 wine_install () {
   local target="$1"
   local version="$2"
-  local cache="$APP_CACHE/portable-winehq-${version}.tar.gz"
+  local cache="$APP_CACHE/wine-${version}.tar.xz"
   [ ! -e "$cache" ] && wine_fetch "$version"
   mkdir -vp "$target" || error "Unable to create directory"
   echo "Extracting wine..."
   tar -xf "$cache" -C "$target" || error "Unable to extract wine"
+  mv "$target"/Wine*.app/Contents/Resources/wine "$target"/usr
+  rm -rf "$target"/Wine*.app
   echo "$version" > "$target/version"
 }
 
@@ -343,7 +344,14 @@ BUNDLE_APP_MENU="$ARG_APP_MENU"
 BUNDLE_APP_PROMPT="$ARG_APP_PROMPT"
 BUNDLE_ARCH="$ARG_ARCH"
 BUNDLE_LOCALE="$ARG_LOCALE"
-BUNDLE_WINE=`wine_list | grep "$ARG_WINE" | tail -n 1`
+# Use cache first
+BUNDLE_WINE=$(ls "$APP_CACHE" \
+  | grep '^wine-.*\.tar\.xz$' \
+  | sed -e 's/^wine-\(.*\)\.tar\.xz$/\1/' \
+  | tail -n 1)
+if [ -z "$BUNDLE_WINE" ]; then
+  BUNDLE_WINE=`wine_list | grep "$ARG_WINE" | head -n 1`
+fi
 
 cat <<EOF
 
