@@ -10,6 +10,8 @@ This simple bash script will let you easily wrap existing wine prefix into bundl
 
 Inspired by non-working by default GoG's "Divine Divinity" wine application bundle.
 
+https://www.artembutusov.com/how-to-wrap-wine-applications-into-macos-x-application-bundle/
+
 Features
 --------
 
